@@ -5,9 +5,10 @@ if [ -z "$KAFKA_HOME" ]; then
   return 1
 fi
 
-zookeeper_logs_dir="/tmp/zookeeper"
-zookeeper_logs_myid="$zookeeper_logs_dir/myid"
-kafka_logs_dir="/tmp/kafka-logs"
+zookeeper_data_dir="/tmp/zookeeper"
+zookeeper_logs_myid="$zookeeper_data_dir/myid"
+kafka_data_dir="/tmp/kafka-logs"
+kafka_logs_dir="/usr/kafka/default/logs"
 
 function start_zookeeper() {
 
@@ -17,7 +18,7 @@ function start_zookeeper() {
   zk_port="2181"
   read -e -p "Enter Zk client port. Must be unique per Zk instance on a single machine: " -i "$zk_port" zk_port
 
-  mkdir $zookeeper_logs_dir
+  mkdir $zookeeper_data_dir
   echo "$zk_id" > $zookeeper_logs_myid
 
   properties_template_file="$PWD/config/kafka-zookeeper-template.properties"
@@ -88,14 +89,15 @@ function tail_broker_logs() {
 function cleanup_kafka_logs() {
   cleanup_broker_logs
   cleanup_zookeeper_logs
+  rm -fvr $kafka_logs_dir/* 
 }
 
 function cleanup_broker_logs() {
-  rm -fvr $kafka_logs_dir
+  rm -fvr $kafka_data_dir
 }
 
 function cleanup_zookeeper_logs() {
-  rm -fvr $zookeeper_logs_dir
+  rm -fvr $zookeeper_data_dir
 }
 
 function kill_brokers() {
