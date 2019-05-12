@@ -53,12 +53,16 @@ function start_broker() {
   broker_port="9092"
   read -e -p "Enter Broker port. Must be unique per cluster node: " -i "$broker_port" broker_port
 
+  zk_host_port="localhost:2181"
+  read -e -p "Enter Zk host:port address: " -i "$zk_host_port" zk_host_port
+
   properties_template_file="$PWD/config/kafka-broker-template.properties"
   properties_file="$KAFKA_HOME/config/broker-$broker_id".properties
   log_file="$KAFKA_HOME/logs/broker-$broker_id"-console.log
 
   sed "s/#BROKER_ID#/"$broker_id"/g" $properties_template_file > $properties_file
   sed -i "s/#BROKER_PORT#/"$broker_port"/g" $properties_file
+  sed -i "s/#ZK_HOST_PORT#/"$zk_host_port"/g" $properties_file
 
   echo -e "starting broker $broker_id on port $broker_port ..."
   export KAFKA_HEAP_OPTS="-Xmx1G -Xms1G"
@@ -89,7 +93,7 @@ function tail_broker_logs() {
 function cleanup_kafka_logs() {
   cleanup_broker_logs
   cleanup_zookeeper_logs
-  rm -fvr $kafka_logs_dir/* 
+  rm -fvr $kafka_logs_dir/*
 }
 
 function cleanup_broker_logs() {
